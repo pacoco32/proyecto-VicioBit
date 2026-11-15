@@ -12,6 +12,6 @@ Nombre de las ramas:
 - feature/pacoDAW
 - feature/angelDAW
 
-Nombre específico de las clases
-Producto pasa a llamarse Videojuego
-Categoria pasa a llamarse Genero
+Nombre específico de las clases:
+- Producto pasa a llamarse Videojuego
+- Categoria pasa a llamarse Genero
