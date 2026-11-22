@@ -5,7 +5,7 @@ Temática:
 - Tienda de videojuegos, llamada VicioBit.
 
 Integrantes:
-- Ángel Rodríguez Clavel
+- Ángel Rodríguez Claver
 - Francisco Manuel Cabrerizo Guerrero
 
 Nombre de las ramas:
