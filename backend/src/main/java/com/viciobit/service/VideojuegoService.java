@@ -4,9 +4,10 @@ import com.viciobit.dto.StockDto;
 import com.viciobit.dto.VideojuegoCrearDto;
 import com.viciobit.dto.VideojuegoDetalleDto;
 import com.viciobit.dto.VideojuegoResumenDto;
+import com.viciobit.dto.VideojuegoFiltroDTO;
 import com.viciobit.exception.ConflictoException;
-import com.viciobit.exception.DatosNoValidosException;
-import com.viciobit.exception.RecursoNoEncontradoException;
+import com.viciobit.exception.DatosInvalidosException;
+import com.viciobit.exception.RecursoNotFoundException;
 import com.viciobit.model.Direccion;
 import com.viciobit.model.Genero;
 import com.viciobit.model.OrdenVideojuego;
@@ -36,7 +37,7 @@ public class VideojuegoService {
     public VideojuegoDetalleDto obtenerActivo(Long id) {
         Videojuego videojuego = buscarPorId(id);
         if (!videojuego.isActivo()) {
-            throw new RecursoNoEncontradoException("No existe el videojuego " + id);
+            throw new RecursoNotFoundException("No existe el videojuego " + id);
         }
         return aDetalle(videojuego);
     }
@@ -105,7 +106,7 @@ public class VideojuegoService {
     public VideojuegoDetalleDto cambiarStock(Long id, StockDto entrada) {
         Videojuego videojuego = buscarPorId(id);
         if (entrada.getCantidad() == null) {
-            throw new DatosNoValidosException("Hay que indicar la cantidad");
+            throw new DatosInvalidosException("Hay que indicar la cantidad");
         }
         int nuevoStock = videojuego.getStock() + entrada.getCantidad();
         if (nuevoStock < 0) {
@@ -123,7 +124,7 @@ public class VideojuegoService {
                 return videojuego;
             }
         }
-        throw new RecursoNoEncontradoException("No existe el videojuego " + id);
+        throw new RecursoNotFoundException("No existe el videojuego " + id);
     }
 
     public List<Videojuego> listarActivos() {
@@ -134,6 +135,68 @@ public class VideojuegoService {
             }
         }
         return resultado;
+    }
+
+    //FILTROS//
+    //Filtra videojuegos según los criterios recibidos
+    public List<Videojuego> filtrarVideojuegos(
+            List<Videojuego> videojuegos,
+            VideojuegoFiltroDTO filtros) {
+
+        //Validar rango de precios
+        if (filtros.getPrecioMin() != null &&
+                filtros.getPrecioMax() != null &&
+                filtros.getPrecioMin().compareTo(filtros.getPrecioMax()) > 0) {
+
+            throw new DatosInvalidosException(
+                    "El precio mínimo no puede ser superior al máximo");
+        }
+
+        return videojuegos.stream()
+
+                //Filtro por género
+                .filter(v -> filtros.getGeneroId() == null ||
+                        (v.getGenero() != null &&
+                                v.getGenero().getId() != null &&
+                                v.getGenero().getId().equals(filtros.getGeneroId())))
+
+                //Filtro por texto
+                .filter(v -> filtros.getQ() == null ||
+                        filtros.getQ().isBlank() ||
+                        (v.getNombre() != null &&
+                                normalizarTexto(v.getNombre()).contains(
+                                        normalizarTexto(filtros.getQ()))) ||
+                        (v.getDescripcion() != null &&
+                                normalizarTexto(v.getDescripcion()).contains(
+                                        normalizarTexto(filtros.getQ()))))
+
+                //Filtro por precio mínimo
+                .filter(v -> filtros.getPrecioMin() == null ||
+                        (v.getPrecio() != null &&
+                                v.getPrecio().compareTo(filtros.getPrecioMin()) >= 0))
+
+                //Filtro por precio máximo
+                .filter(v -> filtros.getPrecioMax() == null ||
+                        (v.getPrecio() != null &&
+                                v.getPrecio().compareTo(filtros.getPrecioMax()) <= 0))
+
+                //Filtro por disponibilidad
+                .filter(v -> !Boolean.TRUE.equals(filtros.getSoloDisponibles()) ||
+                        (v.getStock() != null && v.getStock() > 0))
+
+                //Filtro por plataforma
+                .filter(v -> filtros.getPlataforma() == null ||
+                        v.getPlataforma() == filtros.getPlataforma())
+
+                .toList();
+    }
+
+    //Normalizar texto
+    private String normalizarTexto(String texto) {
+        return java.text.Normalizer.normalize(
+                texto.toLowerCase(),
+                java.text.Normalizer.Form.NFD
+        ).replaceAll("\\p{M}", "");
     }
 
     // ordena una copia de la lista con el método de la burbuja
@@ -185,25 +248,25 @@ public class VideojuegoService {
 
     private void validar(VideojuegoCrearDto entrada) {
         if (entrada.getSku() == null || entrada.getSku().isBlank()) {
-            throw new DatosNoValidosException("El SKU es obligatorio");
+            throw new DatosInvalidosException("El SKU es obligatorio");
         }
         if (entrada.getNombre() == null || entrada.getNombre().isBlank()) {
-            throw new DatosNoValidosException("El nombre es obligatorio");
+            throw new DatosInvalidosException("El nombre es obligatorio");
         }
         if (entrada.getPrecio() == null || entrada.getPrecio().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new DatosNoValidosException("El precio debe ser mayor que 0");
+            throw new DatosInvalidosException("El precio debe ser mayor que 0");
         }
         if (entrada.getStock() == null || entrada.getStock() < 0) {
-            throw new DatosNoValidosException("El stock no puede ser negativo");
+            throw new DatosInvalidosException("El stock no puede ser negativo");
         }
         if (entrada.getGeneroId() == null) {
-            throw new DatosNoValidosException("El género es obligatorio");
+            throw new DatosInvalidosException("El género es obligatorio");
         }
         if (entrada.getPlataforma() == null) {
-            throw new DatosNoValidosException("La plataforma es obligatoria");
+            throw new DatosInvalidosException("La plataforma es obligatoria");
         }
         if (entrada.getPegi() == null || !pegiValido(entrada.getPegi())) {
-            throw new DatosNoValidosException("El PEGI debe ser 3, 7, 12, 16 o 18");
+            throw new DatosInvalidosException("El PEGI debe ser 3, 7, 12, 16 o 18");
         }
     }
 
@@ -213,11 +276,7 @@ public class VideojuegoService {
 
     // género inexistente: 400
     private Genero buscarGenero(Long generoId) {
-        Genero genero = generoService.buscarPorId(generoId).orElse(null);
-        if (genero == null) {
-            throw new DatosNoValidosException("El género indicado no existe");
-        }
-        return genero;
+        return generoService.buscarPorId(generoId);
     }
 
     // idActual es null al crear
@@ -305,9 +364,19 @@ public class VideojuegoService {
         videojuego.setActivo(activo);
         videojuego.setDestacado(destacado);
         videojuego.setFechaAlta(LocalDate.now().minusDays(diasDeAntiguedad));
-        videojuego.setGenero(generoService.buscarPorId(generoId).orElse(null));
+        videojuego.setGenero(generoService.buscarPorId(generoId));
         videojuego.setPlataforma(plataforma);
         videojuego.setPegi(pegi);
         videojuegos.add(videojuego);
+    }
+
+    //Comprueba si hay videojuegos asociados a un género
+    public boolean tieneVideojuegosAsociados(Long generoId) {
+        for (Videojuego videojuego : videojuegos) {
+            if (videojuego.getGenero().getId().equals(generoId)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
