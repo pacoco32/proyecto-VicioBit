@@ -35,3 +35,7 @@ Thumbs.db
 
 # Excluye los archivos de registro de la aplicación
 *.log
+
+# Credenciales de Firebase
+*serviceAccount*.json
+firebase-adminsdk*.json
