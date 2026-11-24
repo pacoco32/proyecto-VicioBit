@@ -30,4 +30,26 @@ public class VideojuegoController {
     public ResponseEntity<List<VideojuegoResumenDto>> listarDestacados() {
         return ResponseEntity.ok(videojuegoService.listarDestacados());
     }
+
+    //Aplicar filtros para búsqueda
+    @GetMapping
+    public ResponseEntity<List<VideojuegoResumenDto>> listar(
+            @RequestParam(required = false) Long generoId,
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) BigDecimal precioMin,
+            @RequestParam(required = false) BigDecimal precioMax,
+            @RequestParam(required = false) Boolean soloDisponibles,
+            @RequestParam(required = false) Plataforma plataforma) {
+
+        VideojuegoFiltroDTO filtros = new VideojuegoFiltroDTO();
+
+        filtros.setGeneroId(generoId);
+        filtros.setQ(q);
+        filtros.setPrecioMin(precioMin);
+        filtros.setPrecioMax(precioMax);
+        filtros.setSoloDisponibles(soloDisponibles);
+        filtros.setPlataforma(plataforma);
+
+        return ResponseEntity.ok(videojuegoService.listarFiltrados(filtros));
+    }
 }

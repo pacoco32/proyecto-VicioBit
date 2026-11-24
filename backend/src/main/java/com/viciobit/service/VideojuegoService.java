@@ -379,4 +379,20 @@ public class VideojuegoService {
         }
         return false;
     }
+
+    //Se encarga de coordinar el filtrado y la conversión. Utiliza los filtros creados anteriormente
+    public List<VideojuegoResumenDto> listarFiltrados(VideojuegoFiltroDTO filtros) {
+
+        List<Videojuego> videojuegosFiltrados =
+                filtrarVideojuegos(listarActivos(), filtros);
+
+        List<VideojuegoResumenDto> resultado = new ArrayList<>();
+
+        for (Videojuego videojuego : videojuegosFiltrados) {
+            resultado.add(aResumen(videojuego));
+        }
+
+        return resultado;
+    }
 }
+
