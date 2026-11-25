@@ -309,6 +309,17 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Filtro con precio mínimo mayor que precio máximo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
         }
       ]
     },
@@ -1530,10 +1541,113 @@
             {
               "name": "Error - Modificar genero inexistente - Admin",
               "request": {
-                "method": "GET",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{FIREBASE_ADMIN_TOKEN}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"nombre\": \"Género invent gordo\",\r\n    \"descripcion\": \"Prueba de recurso inexistente\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:9090/api/admin/generos/9999",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "9090",
+                  "path": [
+                    "api",
+                    "admin",
+                    "generos",
+                    "9999"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Error - Borrar un genero con videojuego - Admin",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{FIREBASE_ADMIN_TOKEN}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
                 "header": [],
                 "url": {
-                  "raw": ""
+                  "raw": "http://localhost:9090/api/admin/generos/1",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "9090",
+                  "path": [
+                    "api",
+                    "admin",
+                    "generos",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Error - Modificar un genero con el nombre de otro - Admin",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{FIREBASE_ADMIN_TOKEN}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"nombre\": \"Aventura\",\r\n    \"descripcion\": \"Intento de usar el nombre de otro género\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:9090/api/admin/generos/2",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "9090",
+                  "path": [
+                    "api",
+                    "admin",
+                    "generos",
+                    "2"
+                  ]
                 }
               },
               "response": []
@@ -1640,7 +1754,7 @@
   "variable": [
     {
       "key": "FIREBASE_API_KEY",
-      "secret": true
+      "value": ""
     },
     {
       "key": "FIREBASE_TOKEN",
