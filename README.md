@@ -207,7 +207,7 @@ La tabla completa de endpoints (método, ruta, rol, DTO de entrada, DTO de salid
 
 ## Seguridad del repositorio
 
-No se suben al repositorio la cuenta de servicio de Firebase, la API key ni el `application.properties` real. Solo se incluye `application-example.properties` como plantilla.
+No se suben al repositorio la cuenta de servicio de Firebase.
 
 Gracias por leer y probar este proyecto que ha costado sudor y lágrimas sacarlo. Un beso <3
 
