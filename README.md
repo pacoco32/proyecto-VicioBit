@@ -88,8 +88,6 @@ viciobit.carrito.max-unidades-por-videojuego=10
 viciobit.envio.coste=4.99
 viciobit.envio.gratis-desde=50.00
 
-# Puerto de la aplicación (cambiar a uno libre si el 9090 está ocupado)
-server.port=9090
 ```
 
 `application-example.properties` se mantiene como plantilla de referencia, con las mismas propiedades.
