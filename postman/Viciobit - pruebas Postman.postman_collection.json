@@ -1,0 +1,241 @@
+{
+  "info": {
+    "_postman_id": "5d57c32d-2e51-4148-b076-5e98d082f2bb",
+    "name": "Viciobit - pruebas Postman",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "58473262",
+    "_collection_link": "https://go.postman.co/collection/58473262-5d57c32d-2e51-4148-b076-5e98d082f2bb?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Login - Cliente",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const respuesta = pm.response.json();\r\n\r\npm.collectionVariables.set(\"FIREBASE_TOKEN\", respuesta.idToken);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"email\": \"cliente@viciobit.com\",\r\n    \"password\": \"123456\",\r\n    \"returnSecureToken\": true\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={{FIREBASE_API_KEY}}",
+          "protocol": "https",
+          "host": [
+            "identitytoolkit",
+            "googleapis",
+            "com"
+          ],
+          "path": [
+            "v1",
+            "accounts:signInWithPassword"
+          ],
+          "query": [
+            {
+              "key": "key",
+              "value": "{{FIREBASE_API_KEY}}"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Login - Admin",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const respuesta = pm.response.json();\r\n\r\npm.collectionVariables.set(\"FIREBASE_ADMIN_TOKEN\", respuesta.idToken);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"email\": \"admin@viciobit.com\",\r\n    \"password\": \"123456\",\r\n    \"returnSecureToken\": true\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={{FIREBASE_API_KEY}}",
+          "protocol": "https",
+          "host": [
+            "identitytoolkit",
+            "googleapis",
+            "com"
+          ],
+          "path": [
+            "v1",
+            "accounts:signInWithPassword"
+          ],
+          "query": [
+            {
+              "key": "key",
+              "value": "{{FIREBASE_API_KEY}}"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Consultar generos - Cliente",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{FIREBASE_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:9090/api/generos",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "9090",
+          "path": [
+            "api",
+            "generos"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Consultar generos – Cliente no autenticado",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:9090/api/generos",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "9090",
+          "path": [
+            "api",
+            "generos"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Consultar generos – Token inválido",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "JOJOJOJO",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:9090/api/generos",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "9090",
+          "path": [
+            "api",
+            "generos"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Consultar generos  de Admin – Cliente sin permisos",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": ""
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Consultar generos - Admin",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{FIREBASE_ADMIN_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:9090/api/admin/generos",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "9090",
+          "path": [
+            "api",
+            "admin",
+            "generos"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "FIREBASE_API_KEY",
+      "secret": true
+    },
+    {
+      "key": "FIREBASE_TOKEN",
+      "secret": true
+    },
+    {
+      "key": "FIREBASE_ADMIN_TOKEN",
+      "value": ""
+    }
+  ]
+}
