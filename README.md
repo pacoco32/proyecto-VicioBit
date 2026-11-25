@@ -70,27 +70,29 @@ proyecto-VicioBit/
 - Java 21 y Maven.
 - Una cuenta de servicio de Firebase (archivo JSON). **Se facilita en la memoria o entrega de Moodle y no se sube al repositorio.**
 
-### 2. `application.properties`
+### 2. Configurar `application.properties`
 
-Copiar la plantilla y editarla:
-
-```bash
-cd backend/src/main/resources
-cp application-example.properties application.properties
-```
-
-Propiedades principales:
+El archivo `backend/src/main/resources/application.properties` ya está incluido en el repositorio y no contiene ningún secreto. Las credenciales de Firebase se configuran aparte (paso 3). Si hace falta cambiar algún valor, estas son las propiedades:
 
 ```properties
 spring.application.name=viciobit
-server.port=9090 //Puerto utilizado por Paco para pruebas, cambiar a uno libre
 spring.web.error.include-message=always
 
 # Correos de los usuarios administradores (separados por comas)
 viciobit.admins=admin@viciobit.com,admin2@viciobit.com
+
+# Configuración del carrito
+viciobit.carrito.max-unidades-por-videojuego=10
+
+# Configuración de los gastos de envío
+viciobit.envio.coste=4.99
+viciobit.envio.gratis-desde=50.00
+
+# Puerto de la aplicación (cambiar a uno libre si el 9090 está ocupado)
+server.port=9090
 ```
 
-`application.properties` no se sube al repositorio (está en `.gitignore`).
+`application-example.properties` se mantiene como plantilla de referencia, con las mismas propiedades.
 
 ### 3. Configurar las credenciales de Firebase
 
