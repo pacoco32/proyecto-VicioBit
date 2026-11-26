@@ -10,8 +10,8 @@ Las rutas `/api/admin/**` solo las puede usar un `ADMIN` (`403` si es `CLIENTE`)
 | GET | /api/generos | Lista todos los géneros | Autenticado | - | `List<GeneroDTO>` | 200 |
 | GET | /api/generos/{id} | Consulta un género por su ID | Autenticado | - | `GeneroDTO` | 200, 404 |
 | GET | /api/admin/generos | Lista los géneros desde administración | ADMIN | - | `List<GeneroDTO>` | 200 |
-| POST | /api/admin/generos | Crea un nuevo género | ADMIN | `GeneroCrearDTO` | `GeneroDTO` | 201, 409 |
-| PUT | /api/admin/generos/{id} | Modifica un género existente | ADMIN | `GeneroCrearDTO` | `GeneroDTO` | 200, 404, 409 |
+| POST | /api/admin/generos | Crea un nuevo género | ADMIN | `GeneroCrearDTO` | `GeneroDTO` | 201, 400, 409 |
+| PUT | /api/admin/generos/{id} | Modifica un género existente | ADMIN | `GeneroCrearDTO` | `GeneroDTO` | 200, 400, 404, 409 |
 | DELETE | /api/admin/generos/{id} | Elimina un género sin videojuegos | ADMIN | - | - | 204, 404, 409 |
 
 ## Videojuegos
@@ -26,6 +26,25 @@ Las rutas `/api/admin/**` solo las puede usar un `ADMIN` (`403` si es `CLIENTE`)
 | DELETE | /api/admin/productos/{id} | Retira un videojuego del catálogo | ADMIN | - | - | 204, 404 |
 | PUT | /api/admin/productos/{id}/stock | Suma o resta stock | ADMIN | `StockDto` | `VideojuegoDetalleDto` | 200, 400, 404, 409 |
 | PUT | /api/admin/productos/{id}/reactivar | Vuelve a activar un videojuego retirado | ADMIN | - | `VideojuegoDetalleDto` | 200, 404 |
+
+## Búsqueda, filtros y ordenación
+
+| Método | Ruta | Descripción | Rol | DTO entrada | DTO salida | Respuestas |
+|---|---|---|---|---|---|---|
+| GET | /api/productos | Busca con filtros combinables (`generoId`, `q`, `precioMin`, `precioMax`, `soloDisponibles`, `plataforma`, `orden`, `direccion`) | Autenticado | `VideojuegoFiltroDTO` (parámetros) | `List<VideojuegoResumenDto>` | 200, 400 |
+| GET | /api/generos/{id}/productos | Videojuegos de un género | Autenticado | - | `List<VideojuegoResumenDto>` | 200, 404 |
+| GET | /api/productos/sku/{sku} | Busca un videojuego por su SKU | Autenticado | - | `VideojuegoDetalleDto` | 200, 404 |
+| GET | /api/admin/productos/stock-bajo?umbral= | Videojuegos con poco stock | ADMIN | - | `List<VideojuegoDetalleDto>` | 200 |
+
+## Carrito
+
+| Método | Ruta | Descripción | Rol | DTO entrada | DTO salida | Respuestas |
+|---|---|---|---|---|---|---|
+| GET | /api/carrito | Ver el carrito con totales y avisos | Autenticado | - | `CarritoDTO` | 200 |
+| POST | /api/carrito/lineas | Añade un videojuego al carrito | Autenticado | `LineaCarritoCrearDTO` | `CarritoDTO` | 200, 400, 404, 409 |
+| PUT | /api/carrito/lineas/{videojuegoId} | Cambia la cantidad de una línea | Autenticado | `LineaCarritoCrearDTO` | `CarritoDTO` | 200, 400, 404, 409 |
+| DELETE | /api/carrito/lineas/{videojuegoId} | Quita una línea | Autenticado | - | `CarritoDTO` | 200, 404 |
+| DELETE | /api/carrito | Vacía el carrito | Autenticado | - | - | 204 |
 
 ## Usuarios
 
@@ -47,7 +66,3 @@ Las rutas `/api/admin/**` solo las puede usar un `ADMIN` (`403` si es `CLIENTE`)
 | GET | /api/admin/pedidos?estado=&desde=&hasta=&email= | Todos los pedidos con filtros | ADMIN | - | `List<PedidoResumenDto>` | 200, 400 |
 | GET | /api/admin/pedidos/{id} | Detalle de cualquier pedido | ADMIN | - | `PedidoDto` | 200, 404 |
 | PUT | /api/admin/pedidos/{id}/estado | Cambia el estado de un pedido | ADMIN | `CambiarEstadoDto` | `PedidoDto` | 200, 400, 404, 409 |
-
-## Pendiente de completar (Paco)
-
-Búsqueda y filtros (`GET /api/productos`, `/api/generos/{id}/productos`, `/api/productos/sku/{sku}` y `/api/admin/productos/stock-bajo`), carrito y rutas de autenticación, si las hubiera.
