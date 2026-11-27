@@ -1,5 +1,6 @@
 package com.viciobit.service;
 
+import com.google.firebase.auth.FirebaseToken;
 import com.viciobit.dto.UsuarioActualizarDto;
 import com.viciobit.dto.UsuarioDto;
 import com.viciobit.exception.RecursoNotFoundException;
@@ -17,13 +18,14 @@ public class UsuarioActualService {
         this.usuarioService = usuarioService;
     }
 
-    // el filtro de autenticación guarda el uid del token como nombre de la autenticación
+    // el filtro guarda el token de Firebase ya verificado; si es su primer acceso se crea el usuario
     public Usuario obtenerUsuarioActual() {
         Authentication autenticacion = SecurityContextHolder.getContext().getAuthentication();
-        if (autenticacion == null) {
+        if (autenticacion == null || !(autenticacion.getPrincipal() instanceof FirebaseToken)) {
             throw new RecursoNotFoundException("No hay ningún usuario autenticado");
         }
-        return usuarioService.buscarPorUid(autenticacion.getName());
+        FirebaseToken token = (FirebaseToken) autenticacion.getPrincipal();
+        return usuarioService.obtenerOCrear(token.getUid(), token.getEmail(), token.getName());
     }
 
     public UsuarioDto obtenerPerfil() {
