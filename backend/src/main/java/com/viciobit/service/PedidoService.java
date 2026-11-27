@@ -1,21 +1,20 @@
 package com.viciobit.service;
 
 import com.viciobit.dto.CambiarEstadoDto;
+import com.viciobit.dto.CarritoDTO;
 import com.viciobit.dto.ConfirmarPedidoDto;
+import com.viciobit.dto.LineaCarritoDTO;
 import com.viciobit.dto.LineaPedidoDto;
 import com.viciobit.dto.PedidoDto;
 import com.viciobit.dto.PedidoResumenDto;
 import com.viciobit.exception.ConflictoException;
 import com.viciobit.exception.DatosInvalidosException;
 import com.viciobit.exception.RecursoNotFoundException;
-import com.viciobit.model.Carrito;
 import com.viciobit.model.EstadoPedido;
-import com.viciobit.model.LineaCarrito;
 import com.viciobit.model.LineaPedido;
 import com.viciobit.model.Pedido;
 import com.viciobit.model.Usuario;
 import com.viciobit.model.Videojuego;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -29,29 +28,23 @@ public class PedidoService {
     private final VideojuegoService videojuegoService;
     private final CarritoService carritoService;
     private final UsuarioActualService usuarioActualService;
-    private final BigDecimal costeEnvio;
-    private final BigDecimal envioGratisDesde;
 
     private final List<Pedido> pedidos = new ArrayList<>();
     private Long siguienteId = 1L;
 
     public PedidoService(VideojuegoService videojuegoService,
                          CarritoService carritoService,
-                         UsuarioActualService usuarioActualService,
-                         @Value("${tienda.envio.coste:4.99}") BigDecimal costeEnvio,
-                         @Value("${tienda.envio.gratis-desde:50.00}") BigDecimal envioGratisDesde) {
+                         UsuarioActualService usuarioActualService) {
         this.videojuegoService = videojuegoService;
         this.carritoService = carritoService;
         this.usuarioActualService = usuarioActualService;
-        this.costeEnvio = costeEnvio;
-        this.envioGratisDesde = envioGratisDesde;
     }
 
     // cliente
 
     public PedidoDto confirmar(ConfirmarPedidoDto entrada) {
         Usuario usuario = usuarioActualService.obtenerUsuarioActual();
-        Carrito carrito = carritoService.obtenerCarritoDe(usuario);
+        CarritoDTO carrito = carritoService.obtenerCarrito();
 
         if (carrito.getLineas().isEmpty()) {
             throw new ConflictoException("El carrito está vacío");
@@ -69,7 +62,7 @@ public class PedidoService {
         pedido.setDireccionEnvio(direccion);
 
         BigDecimal subtotal = BigDecimal.ZERO;
-        for (LineaCarrito lineaCarrito : carrito.getLineas()) {
+        for (LineaCarritoDTO lineaCarrito : carrito.getLineas()) {
             int cantidad = lineaCarrito.getCantidad();
             Videojuego videojuego = videojuegoService.buscarPorId(lineaCarrito.getVideojuego().getId());
 
@@ -85,16 +78,13 @@ public class PedidoService {
             videojuegoService.descontarStock(videojuego.getId(), cantidad);
         }
 
-        BigDecimal envio = costeEnvio;
-        if (subtotal.compareTo(envioGratisDesde) >= 0) {
-            envio = BigDecimal.ZERO;
-        }
+        // los gastos de envío ya los calcula el carrito
         pedido.setSubtotal(subtotal);
-        pedido.setGastosEnvio(envio);
-        pedido.setTotal(subtotal.add(envio));
+        pedido.setGastosEnvio(carrito.getGastosEnvio());
+        pedido.setTotal(subtotal.add(carrito.getGastosEnvio()));
 
         pedidos.add(pedido);
-        carritoService.vaciarCarritoDe(usuario);
+        carritoService.vaciarCarrito();
         return aDto(pedido);
     }
 
@@ -185,19 +175,16 @@ public class PedidoService {
     }
 
     // si algún videojuego falla no se modifica nada
-    private void comprobarStock(Carrito carrito) {
-        String problemas = "";
-        for (LineaCarrito linea : carrito.getLineas()) {
+    private void comprobarStock(CarritoDTO carrito) {
+        List<String> problemas = new ArrayList<>();
+        for (LineaCarritoDTO linea : carrito.getLineas()) {
             Videojuego videojuego = videojuegoService.buscarPorId(linea.getVideojuego().getId());
             if (!videojuego.isActivo() || videojuego.getStock() < linea.getCantidad()) {
-                if (!problemas.isEmpty()) {
-                    problemas = problemas + ", ";
-                }
-                problemas = problemas + videojuego.getNombre();
+                problemas.add(videojuego.getNombre());
             }
         }
         if (!problemas.isEmpty()) {
-            throw new ConflictoException("No hay stock suficiente de: " + problemas);
+            throw new ConflictoException("No hay stock suficiente de: " + String.join(", ", problemas));
         }
     }
 
