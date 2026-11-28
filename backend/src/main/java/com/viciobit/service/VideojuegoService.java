@@ -274,9 +274,13 @@ public class VideojuegoService {
         return pegi == 3 || pegi == 7 || pegi == 12 || pegi == 16 || pegi == 18;
     }
 
-    // género inexistente: 400
+        // género inexistente: 400
     private Genero buscarGenero(Long generoId) {
-        return generoService.buscarPorId(generoId);
+        try {
+            return generoService.buscarPorId(generoId);
+        } catch (RecursoNotFoundException e) {
+            throw new DatosInvalidosException("El género indicado no existe");
+        }
     }
 
     // idActual es null al crear
@@ -368,6 +372,21 @@ public class VideojuegoService {
         videojuego.setPlataforma(plataforma);
         videojuego.setPegi(pegi);
         videojuegos.add(videojuego);
+    }
+
+        // lo usa PedidoService al confirmar un pedido
+    public void descontarStock(Long id, int cantidad) {
+        Videojuego videojuego = buscarPorId(id);
+        if (videojuego.getStock() < cantidad) {
+            throw new ConflictoException("No hay stock suficiente de " + videojuego.getNombre());
+        }
+        videojuego.setStock(videojuego.getStock() - cantidad);
+    }
+
+    // lo usa PedidoService al cancelar un pedido
+    public void reponerStock(Long id, int cantidad) {
+        Videojuego videojuego = buscarPorId(id);
+        videojuego.setStock(videojuego.getStock() + cantidad);
     }
 
     //Comprueba si hay videojuegos asociados a un género
