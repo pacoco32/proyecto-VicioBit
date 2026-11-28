@@ -306,6 +306,28 @@ public class VideojuegoService {
         videojuego.setPegi(entrada.getPegi());
     }
 
+    //Listar videojuegos activos con stock bajo
+    public List<VideojuegoDetalleDto> listarStockBajo(int umbral) {
+
+        if (umbral < 0) {
+            throw new DatosInvalidosException(
+                    "El umbral no puede ser negativo");
+        }
+
+        List<VideojuegoDetalleDto> resultado = new ArrayList<>();
+
+        for (Videojuego videojuego : videojuegos) {
+
+            if (videojuego.isActivo() &&
+                    videojuego.getStock() <= umbral) {
+
+                resultado.add(aDetalle(videojuego));
+            }
+        }
+
+        return resultado;
+    }
+
     private VideojuegoDetalleDto aDetalle(Videojuego videojuego) {
         VideojuegoDetalleDto dto = new VideojuegoDetalleDto();
         dto.setId(videojuego.getId());
@@ -412,6 +434,21 @@ public class VideojuegoService {
         }
 
         return resultado;
+    }
+
+    //Buscar un videojuego activo por su SKU
+    public VideojuegoDetalleDto buscarPorSku(String sku) {
+
+        for (Videojuego videojuego : videojuegos) {
+
+            if (videojuego.isActivo() &&
+                    videojuego.getSku().equalsIgnoreCase(sku)) {
+
+                return aDetalle(videojuego);
+            }
+        }
+
+        throw new RecursoNotFoundException("No existe el videojuego con SKU " + sku);
     }
 }
 
