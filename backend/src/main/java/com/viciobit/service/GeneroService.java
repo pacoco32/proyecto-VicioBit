@@ -2,6 +2,8 @@ package com.viciobit.service;
 
 import com.viciobit.dto.GeneroCrearDTO;
 import com.viciobit.dto.GeneroDTO;
+import com.viciobit.dto.VideojuegoFiltroDTO;
+import com.viciobit.dto.VideojuegoResumenDto;
 import com.viciobit.exception.ConflictoException;
 import com.viciobit.exception.DatosInvalidosException;
 import com.viciobit.exception.RecursoNotFoundException;
@@ -49,11 +51,7 @@ public class GeneroService {
         List<GeneroDTO> listaGeneros = new ArrayList<>();
 
         for (Genero genero : generos) {
-            GeneroDTO generoDTO = new GeneroDTO(
-                    genero.getId(),
-                    genero.getNombre(),
-                    genero.getDescripcion()
-            );
+            GeneroDTO generoDTO = new GeneroDTO(genero.getId(), genero.getNombre(), genero.getDescripcion());
 
             listaGeneros.add(generoDTO);
         }
@@ -76,11 +74,17 @@ public class GeneroService {
     public GeneroDTO buscarGeneroId(Long id) {
         Genero genero = buscarPorId(id);
 
-        return new GeneroDTO(
-                genero.getId(),
-                genero.getNombre(),
-                genero.getDescripcion()
-        );
+        return new GeneroDTO(genero.getId(), genero.getNombre(), genero.getDescripcion());
+    }
+
+    //Videojuegos activos de un género (404 si el género no existe)
+    public List<VideojuegoResumenDto> listarVideojuegosDeGenero(Long id) {
+        buscarPorId(id);
+
+        VideojuegoFiltroDTO filtros = new VideojuegoFiltroDTO();
+        filtros.setGeneroId(id);
+
+        return videojuegoService.listarFiltrados(filtros);
     }
 
     //Crear un género
@@ -96,11 +100,7 @@ public class GeneroService {
 
         generos.add(genero);
 
-        return new GeneroDTO(
-                genero.getId(),
-                genero.getNombre(),
-                genero.getDescripcion()
-        );
+        return new GeneroDTO(genero.getId(), genero.getNombre(), genero.getDescripcion());
     }
 
     //Validación de nombre
@@ -118,8 +118,7 @@ public class GeneroService {
         String n = nombre.toLowerCase();
 
         for (Genero genero : generos) {
-            if (genero.getNombre().toLowerCase().equals(n)
-                    && !genero.getId().equals(idExcluido)) {
+            if (genero.getNombre().toLowerCase().equals(n) && !genero.getId().equals(idExcluido)) {
                 throw new ConflictoException("El nombre ya existe");
             }
         }
@@ -136,11 +135,7 @@ public class GeneroService {
         genero.setNombre(generoCrearDTO.getNombre());
         genero.setDescripcion(generoCrearDTO.getDescripcion());
 
-        return new GeneroDTO(
-                genero.getId(),
-                genero.getNombre(),
-                genero.getDescripcion()
-        );
+        return new GeneroDTO(genero.getId(), genero.getNombre(), genero.getDescripcion());
     }
 
     //Eliminar un género
@@ -148,12 +143,9 @@ public class GeneroService {
         Genero genero = buscarPorId(id);
 
         if (videojuegoService.tieneVideojuegosAsociados(id)) {
-            throw new ConflictoException(
-                    "No se puede eliminar el género porque tiene videojuegos asociados"
-            );
+            throw new ConflictoException("No se puede eliminar el género porque tiene videojuegos asociados");
         }
 
         generos.remove(genero);
     }
 }
-
