@@ -38,4 +38,4 @@ Thumbs.db
 
 # Credenciales de Firebase
 *serviceAccount*.json
-firebase-adminsdk*.json
+*firebase-adminsdk*.json
