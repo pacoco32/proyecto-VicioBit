@@ -21,8 +21,8 @@ public class UsuarioService {
     private Long siguienteId = 1L;
     private final String administradores;
 
-    // tienda.admins contiene los correos de los administradores separados por comas
-    public UsuarioService(@Value("${tienda.admins:}") String administradores) {
+    // viciobit.admins contiene los correos de los administradores separados por comas
+    public UsuarioService(@Value("${viciobit.admins:}") String administradores) {
         this.administradores = administradores;
     }
 
