@@ -52,4 +52,12 @@ public class VideojuegoController {
 
         return ResponseEntity.ok(videojuegoService.listarFiltrados(filtros));
     }
+
+    @GetMapping("/sku/{sku}")
+public ResponseEntity<VideojuegoDetalleDto> buscarPorSku(
+        @PathVariable String sku) {
+
+    return ResponseEntity.ok(videojuegoService.buscarPorSku(sku));
+}
+    
 }
